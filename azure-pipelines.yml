@@ -6,47 +6,61 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-# Étape 1 : Test de démarrage
+
+# =========================
+# 1) Test de démarrage
+# =========================
 - script: echo "Pipeline initial exécuté avec succès !"
   displayName: 'Test de démarrage'
 
-# Étape 2 : Préparer SonarCloud
-- task: SonarCloudPrepare@0
+# =========================
+# 2) Préparer SonarCloud
+# =========================
+- task: SonarCloudPrepare@1
+  displayName: 'Préparer SonarCloud'
   inputs:
-    SonarCloud: 'SonarQube Cloud service'   # Service Connection SonarCloud
+    SonarCloud: 'SonarQube Cloud service'
     organization: 'soudani'
     scannerMode: 'CLI'
     configMode: 'manual'
     projectKey: 'soudani123'
     projectName: 'Soudani'
 
-# Étape 3 : Analyse du code
-- task: SonarCloudAnalyze@0
-  displayName: 'Analyse du code'
+# =========================
+# 3) Analyse SonarCloud
+# =========================
+- task: SonarCloudAnalyze@1
+  displayName: 'Analyse du code avec SonarCloud'
 
-# Étape 4 : Publier les résultats SonarCloud
-- task: SonarCloudPublish@0
+# =========================
+# 4) Publier résultats SonarCloud
+# =========================
+- task: SonarCloudPublish@1
+  displayName: 'Publier résultats SonarCloud'
   inputs:
     pollingTimeoutSec: '300'
-  displayName: 'Publier résultats SonarCloud'
 
-# Étape 5 : Build Docker et Push vers ACR
+# =========================
+# 5) Build & Push Docker vers ACR
+# =========================
 - task: Docker@2
   displayName: 'Build et Push image Docker'
   inputs:
     command: buildAndPush
-    repository: 'soudani123/devops-kube-app'   # Nom de ton repo ACR
+    repository: 'soudani123/devops-kube-app'
     dockerfile: '**/Dockerfile'
-    containerRegistry: 'Soudani123'            # Service Connection ACR
+    containerRegistry: 'Soudani123'
     tags: |
       latest
 
-# Étape 6 : Déploiement dans AKS
+# =========================
+# 6) Déploiement vers AKS
+# =========================
 - task: KubernetesManifest@0
   displayName: 'Déploiement dans AKS'
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'Soudani123 (1)'   # Service Connection AKS
+    kubernetesServiceConnection: 'Soudani123 (1)'
     namespace: 'dev'
     manifests: |
       manifests/akscalculator.yml
