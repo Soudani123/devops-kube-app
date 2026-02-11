@@ -1,38 +1,30 @@
-trigger: none   # Désactive le déclenchement automatique
+trigger: none   # Pas de déclenchement automatique
 
 variables:
-- name: acrName
-  value: dockerRegGuer
-- name: acrLoginServer
-  value: dockerRegGuer.azurecr.io
-- name: imageName
-  value: angular-app
-- name: tag
-  value: $(Build.BuildId)
+  acrName: dockerRegGuer
+  acrLoginServer: dockerRegGuer.azurecr.io
+  imageName: angular-app
+  tag: $(Build.BuildId)
 
 stages:
 - stage: BuildAndPush
   jobs:
-  - job: Job
+  - job: Build
     pool:
       vmImage: 'ubuntu-latest'   # Agent géré par Azure
     steps:
     - task: NodeTool@0
       displayName: Install Node.js
       inputs:
-        versionSpec: '10.x'
+        versionSpec: '16.x'   # Version plus récente et supportée
 
-    - task: CmdLine@2
+    - script: npm install --no-audit --no-fund
       displayName: Install npm dependencies
-      inputs:
-        script: npm install --no-audit --no-fund
-        workingDirectory: angular-app-kubernetes
+      workingDirectory: angular-app-kubernetes
 
-    - task: CmdLine@2
+    - script: npm run build
       displayName: Build Angular app
-      inputs:
-        script: npm run build
-        workingDirectory: angular-app-kubernetes
+      workingDirectory: angular-app-kubernetes
 
     - task: AzureCLI@2
       displayName: Login to ACR
@@ -47,8 +39,8 @@ stages:
       displayName: Build and Push Docker image to ACR
       inputs:
         command: buildAndPush
-        Dockerfile: Dockerfile
-        buildContext: .
+        Dockerfile: angular-app-kubernetes/Dockerfile
+        buildContext: angular-app-kubernetes
         repository: $(acrLoginServer)/$(imageName)
         tags: |
           $(tag)
