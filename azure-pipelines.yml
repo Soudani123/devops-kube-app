@@ -13,7 +13,7 @@ steps:
 # Étape 2 : Préparer SonarCloud
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'SonarQube Cloud service'   # Nom exact de ta Service Connection SonarCloud
+    SonarCloud: 'SonarQube Cloud service'   # Service Connection SonarCloud
     organization: 'soudani'
     scannerMode: 'CLI'
     configMode: 'manual'
@@ -37,7 +37,7 @@ steps:
     command: buildAndPush
     repository: 'soudani123/devops-kube-app'   # Nom de ton repo ACR
     dockerfile: '**/Dockerfile'
-    containerRegistry: 'Soudani123'            # Nom exact de ta Service Connection ACR
+    containerRegistry: 'Soudani123'            # Service Connection ACR
     tags: |
       latest
 
@@ -46,7 +46,7 @@ steps:
   displayName: 'Déploiement dans AKS'
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'Soudani123 (1)'   # Nom exact de ta Service Connection AKS
+    kubernetesServiceConnection: 'Soudani123 (1)'   # Service Connection AKS
     namespace: 'dev'
     manifests: |
       manifests/akscalculator.yml
