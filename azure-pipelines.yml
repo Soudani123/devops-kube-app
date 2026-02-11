@@ -11,9 +11,9 @@ steps:
   displayName: 'Test de démarrage'
 
 # Étape 2 : Préparer SonarCloud
-- task: SonarCloudPrepare@1
+- task: SonarCloudPrepare@2
   inputs:
-    SonarCloud: 'SonarQube Cloud service'   # Service Connection SonarCloud
+    SonarCloud: 'SonarQube Cloud service'
     organization: 'soudani'
     scannerMode: 'CLI'
     configMode: 'manual'
@@ -21,11 +21,11 @@ steps:
     projectName: 'Soudani'
 
 # Étape 3 : Analyse du code
-- task: SonarCloudAnalyze@1
+- task: SonarCloudAnalyze@2
   displayName: 'Analyse du code'
 
 # Étape 4 : Publier les résultats SonarCloud
-- task: SonarCloudPublish@1
+- task: SonarCloudPublish@2
   inputs:
     pollingTimeoutSec: '300'
   displayName: 'Publier résultats SonarCloud'
@@ -35,9 +35,9 @@ steps:
   displayName: 'Build et Push image Docker'
   inputs:
     command: buildAndPush
-    repository: 'soudani123/devops-kube-app'   # Nom de ton repo ACR
+    repository: 'soudani123/devops-kube-app'
     dockerfile: '**/Dockerfile'
-    containerRegistry: 'Soudani123'            # Service Connection ACR
+    containerRegistry: 'Soudani123'
     tags: |
       latest
 
@@ -46,7 +46,7 @@ steps:
   displayName: 'Déploiement dans AKS'
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'Soudani123 (1)'   # Service Connection AKS
+    kubernetesServiceConnection: 'Soudani123 (1)'
     namespace: 'dev'
     manifests: |
       manifests/akscalculator.yml
