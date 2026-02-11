@@ -1,11 +1,18 @@
 trigger:
 - main
+- dev
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: SonarCloudPrepare@0
+# Étape 1 : Test de démarrage
+- script: echo "Pipeline initial exécuté avec succès !"
+  displayName: 'Test de démarrage'
+
+# Étape 2 : Préparer SonarCloud
+- task: SonarCloudPrepare@1
+  displayName: 'Préparer SonarCloud'
   inputs:
     SonarCloud: 'SonarQube Cloud service'
     organization: 'soudani'
@@ -13,3 +20,34 @@ steps:
     configMode: 'manual'
     projectKey: 'soudani123'
     projectName: 'Soudani'
+
+# Étape 3 : Analyse SonarCloud
+- task: SonarCloudAnalyze@1
+  displayName: 'Analyse du code avec SonarCloud'
+
+# Étape 4 : Publier résultats SonarCloud
+- task: SonarCloudPublish@1
+  displayName: 'Publier résultats SonarCloud'
+  inputs:
+    pollingTimeoutSec: '300'
+
+# Étape 5 : Build & Push Docker vers ACR
+- task: Docker@2
+  displayName: 'Build et Push image Docker'
+  inputs:
+    command: buildAndPush
+    repository: 'soudani123/devops-kube-app'
+    dockerfile: '**/Dockerfile'
+    containerRegistry: 'Soudani123'
+    tags: |
+      latest
+
+# Étape 6 : Déploiement dans AKS
+- task: KubernetesManifest@0
+  displayName: 'Déploiement dans AKS'
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: 'Soudani123 (1)'
+    namespace: 'dev'
+    manifests: |
+      manifests/akscalculator.yml
