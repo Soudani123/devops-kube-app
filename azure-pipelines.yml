@@ -1,5 +1,4 @@
-trigger:
-  enabled: false
+trigger: none   # Désactive le déclenchement automatique
 
 variables:
 - name: acrName
