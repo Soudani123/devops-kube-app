@@ -60,7 +60,7 @@ steps:
   displayName: 'Déploiement dans AKS'
   inputs:
     action: deploy
-    kubernetesServiceConnection: 'Soudani123 (1)'
+    kubernetesServiceConnection: 'Soudani123 '
     namespace: 'dev'
     manifests: |
       manifests/akscalculator.yml
