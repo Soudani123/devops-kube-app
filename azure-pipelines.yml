@@ -1,8 +1,9 @@
 trigger:
 - main
+- dev
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: test   # Utilisation du pool "test" de ton prof
 
 steps:
 # Étape 1 : Test de démarrage
@@ -28,3 +29,24 @@ steps:
   displayName: 'Publier résultats SonarQube'
   inputs:
     pollingTimeoutSec: '300'
+
+# Étape 5 : Build & Push Docker vers ACR
+- task: Docker@2
+  displayName: 'Build et Push image Docker'
+  inputs:
+    command: buildAndPush
+    repository: 'soudani123/devops-kube-app'
+    dockerfile: '**/Dockerfile'
+    containerRegistry: 'Soudani123'
+    tags: |
+      latest
+
+# Étape 6 : Déploiement dans AKS
+- task: KubernetesManifest@0
+  displayName: 'Déploiement dans AKS'
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: 'Soudani123 (1)'
+    namespace: 'dev'
+    manifests: |
+      manifests/akscalculator.yml
