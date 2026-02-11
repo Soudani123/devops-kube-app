@@ -1,18 +1,52 @@
 trigger:
 - main
+- dev
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+# Étape 1 : Test de démarrage
 - script: echo "Pipeline initial exécuté avec succès !"
   displayName: 'Test de démarrage'
 
+# Étape 2 : Préparer SonarCloud
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'NomDeTaConnexionSonarCloud'   # Service Connection créé dans Azure DevOps
-    organization: 'soudani'                    # Ton organisation SonarCloud
+    SonarCloud: 'SonarQube Cloud service'   # Nom exact de ta Service Connection SonarCloud
+    organization: 'soudani'
     scannerMode: 'CLI'
     configMode: 'manual'
-    projectKey: 'soudani123'                   # La clé que tu as définie
-    projectName: 'Soudani'                     # Le nom du projet
+    projectKey: 'soudani123'
+    projectName: 'Soudani'
+
+# Étape 3 : Analyse du code
+- task: SonarCloudAnalyze@1
+  displayName: 'Analyse du code'
+
+# Étape 4 : Publier les résultats SonarCloud
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
+  displayName: 'Publier résultats SonarCloud'
+
+# Étape 5 : Build Docker et Push vers ACR
+- task: Docker@2
+  displayName: 'Build et Push image Docker'
+  inputs:
+    command: buildAndPush
+    repository: 'soudani123/devops-kube-app'   # Nom de ton repo ACR
+    dockerfile: '**/Dockerfile'
+    containerRegistry: 'Soudani123'            # Nom exact de ta Service Connection ACR
+    tags: |
+      latest
+
+# Étape 6 : Déploiement dans AKS
+- task: KubernetesManifest@0
+  displayName: 'Déploiement dans AKS'
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: 'Soudani123 (1)'   # Nom exact de ta Service Connection AKS
+    namespace: 'dev'
+    manifests: |
+      manifests/akscalculator.yml
