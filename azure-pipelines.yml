@@ -1,9 +1,31 @@
 trigger:
 - main
+- dev
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo "Pipeline initial exécuté avec succès !"
-  displayName: 'Test de démarrage'
+# Étape 1 : Checkout du code
+- task: Checkout@1
+  displayName: 'Checkout du code'
+
+# Étape 2 : Préparer SonarCloud
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'NomDeTaConnexionSonarCloud'   # Service Connection créé dans Azure DevOps
+    organization: 'ton-organisation'           # Organisation SonarCloud
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    projectKey: 'ton-projet'                   # Clé du projet SonarCloud
+    projectName: 'NomDuProjet'
+
+# Étape 3 : Analyse du code
+- task: SonarCloudAnalyze@1
+  displayName: 'Analyse du code'
+
+# Étape 4 : Publier les résultats
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
+  displayName: 'Publier résultats SonarCloud'
