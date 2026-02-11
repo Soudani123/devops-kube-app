@@ -29,7 +29,7 @@ stages:
     - task: AzureCLI@2
       displayName: Login to ACR
       inputs:
-        azureSubscription: 'Soudani 123'   # Nom exact de ta connexion de service
+        azureSubscription: 'SonarQube Cloud service'   # Nom exact de ta connexion de service
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
