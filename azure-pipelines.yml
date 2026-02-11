@@ -7,15 +7,15 @@ pool:
 
 steps:
 
-# =========================
+# ===============================
 # 1) Test de démarrage
-# =========================
+# ===============================
 - script: echo "Pipeline initial exécuté avec succès !"
   displayName: 'Test de démarrage'
 
-# =========================
+# ===============================
 # 2) Préparer SonarCloud
-# =========================
+# ===============================
 - task: SonarCloudPrepare@1
   displayName: 'Préparer SonarCloud'
   inputs:
@@ -26,23 +26,23 @@ steps:
     projectKey: 'soudani123'
     projectName: 'Soudani'
 
-# =========================
+# ===============================
 # 3) Analyse SonarCloud
-# =========================
+# ===============================
 - task: SonarCloudAnalyze@1
   displayName: 'Analyse du code avec SonarCloud'
 
-# =========================
+# ===============================
 # 4) Publier résultats SonarCloud
-# =========================
+# ===============================
 - task: SonarCloudPublish@1
   displayName: 'Publier résultats SonarCloud'
   inputs:
     pollingTimeoutSec: '300'
 
-# =========================
+# ===============================
 # 5) Build & Push Docker vers ACR
-# =========================
+# ===============================
 - task: Docker@2
   displayName: 'Build et Push image Docker'
   inputs:
@@ -53,9 +53,9 @@ steps:
     tags: |
       latest
 
-# =========================
-# 6) Déploiement vers AKS
-# =========================
+# ===============================
+# 6) Déploiement dans AKS
+# ===============================
 - task: KubernetesManifest@0
   displayName: 'Déploiement dans AKS'
   inputs:
